@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1519787917897.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3333376045",
+    "id" : "F885885E",
+    "lastKnownWriteTime" : 1519861479,
+    "last_content_update" : 1519861479517,
+    "path" : "D:/Projects/MarchMadness/explore_MM.R",
+    "project_path" : "explore_MM.R",
+    "properties" : {
+        "cursorPosition" : "93,0",
+        "scrollLine" : "67",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
