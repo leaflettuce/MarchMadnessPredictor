@@ -12,6 +12,8 @@ from sklearn.utils import shuffle
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import Imputer
 
 os.chdir('D:/Projects/MarchMadness')
 #IMPORTS
@@ -46,7 +48,7 @@ df['WLRatio'] = df.apply(lambda row: get_count(row.TeamID, row.Season, 1)/ (get_
 
 '''SET TRAIN DATA'''
 X_train = df[['PPG_Diff', 'FGP_Diff', 'AST_Diff', 'FGP3_Diff',
-             'FTP_Diff', 'OR_Diff', 'DR_Diff', 'STL_Diff', 'BLK_Diff', 'Rank_Diff', 'WLRatio']]
+             'FTP_Diff', 'DR_Diff', 'STL_Diff', 'BLK_Diff', 'Rank_Diff', 'WLRatio']]
 
 y_train = df['Result']
 X_train, y_train = shuffle(X_train, y_train)
@@ -67,14 +69,14 @@ def get_stat(stat, t1, t2, year):
         return df[(df.TeamID == t1)][stat].mean() - df[(df.TeamID == t2)][stat].mean()
 
 
-'''TRAIN MODEL - LOGISTIC REGRESSION'''
+'''TRAIN MODEL - LOGISTIC REGRESSION
 logreg = LogisticRegression()
 params = {'C': np.logspace(start=-5, stop=3, num=9)}
 clf = GridSearchCV(logreg, params, scoring='neg_log_loss', refit=True)
 clf.fit(X_train, y_train)
 print('Best log_loss: {:.4}, with best C: {}'
       .format(clf.best_score_, clf.best_params_['C']))
-
+'''
 
 '''TRAIN MODEL - LOG REG CV
 clf = LogisticRegressionCV()
@@ -82,16 +84,16 @@ clf.fit(X_train, y_train)
 '''
 
 
-'''TRAIN MODEL - RANDOM FOREST 
+'''TRAIN MODEL - RANDOM FOREST'''
 clf = RandomForestClassifier(random_state=42)
 clf.fit(X_train, y_train)
-'''
-
+clf.feature_importances_
 
 '''SET TEST DATA'''
-X_test = np.zeros(shape=(n_test_games, 11))
+X_test = np.zeros(shape=(n_test_games, 10))
 
-stat_list = ['PPG', 'FGP', 'AST', 'FGP3', 'FTP', 'OR', 'DR', 'STL', 'BLK', 'Rank'] 
+
+stat_list = ['PPG', 'FGP', 'AST', 'FGP3', 'FTP', 'DR', 'STL', 'BLK', 'Rank'] 
 
 for ii, row in sample_sub.iterrows():
     year, t1, t2 = get_year_t1_t2(row.ID)
@@ -103,9 +105,14 @@ for ii, row in sample_sub.iterrows():
         
     X_test[ii, col_num] =  get_count(t1, year, 1)/ (get_count(t1, year, 0) + get_count(t1, year, 1)).astype('float') - \
       get_count(t2, year, 1)/ (get_count(t2, year, 0) + get_count(t2, year, 1)).astype('float')
-      
+
       
 '''MAKE PREDICTIONS'''
+
+imp = Imputer(missing_values='NaN', strategy='median', axis=1) 
+imp.fit(X_test)
+X_test = imp.fit_transform(X_test)
+
 preds = clf.predict_proba(X_test)[:,1]
 
 clipped_preds = np.clip(preds, 0.05, 0.95)
@@ -115,4 +122,4 @@ sample_sub.head()
 
 
 '''WRITE PRED'''
-sample_sub.to_csv('logreg_11FD_clipped_sub.csv', index=False)
+sample_sub.to_csv('RandForest_10FD_clipped_sub.csv', index=False)
