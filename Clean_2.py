@@ -18,6 +18,19 @@ df_seeds.head()
 
 df_tour.head()
 
+'''Function to set Losing Location'''
+def get_lose_loc(win_loc):
+    lose_loc = ''
+    if win_loc == 'N':
+        lose_loc = 'N'  
+    elif win_loc == 'H':
+        lose_loc = 'A'  
+    else:
+        lose_loc = 'H'
+    return lose_loc
+
+#Get Loser Location
+df_tour['LLoc'] = df_tour.apply(lambda row: get_lose_loc(row.WLoc), axis = 1)  
 
 """ SET SEED TO INT ONLY """
 def seed_to_int(seed):
@@ -29,7 +42,7 @@ df_seeds.drop(labels=['Seed'], inplace=True, axis=1) # This is the string label
 
 
 """DROP COLS and ADD SCORE DIFF"""
-df_tour.drop(labels=['DayNum', 'WLoc', 'NumOT'], inplace=True, axis=1)
+df_tour.drop(labels=['DayNum', 'NumOT'], inplace=True, axis=1)
 
 #ADD score differential
 df_tour['Point_Diff'] = df_tour.WScore - df_tour.LScore
@@ -401,7 +414,7 @@ df_working.drop(labels=['WFGM', 'WFGA', 'WFGM3', 'WFGA3', 'WFTM', 'WFTA',
                         'LOR', 'LDR', 'LAst', 'LTO', 'LStl', 'LBlk',
                         'LPF' ], inplace=True, axis=1)
 
+    
+
 '''RETURN NEW CSV WITH CREATED COLUMNS'''
-
-
 df_working.to_csv('MM_Cleaned_2.csv', index=False)

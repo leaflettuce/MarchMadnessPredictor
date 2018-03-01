@@ -21,9 +21,32 @@ sample_sub = pd.read_csv(data_dir + 'SampleSubmissionStage1.csv')
 n_test_games = len(sample_sub)
 
 
+'''SET DUMMIES'''
+loc_dummies = pd.get_dummies(df.Loc)
+df = pd.concat([df, loc_dummies], axis = 1)
+
+
+'''Set WIN LOSS RATION'''
+def get_count(teamID, year, wl):
+    if wl == 1:
+        try:
+            return df[(df.TeamID == teamID) & (df.Season == year) & (df.Result == 1)].TeamID.value_counts().iloc[0]
+        except IndexError:
+            return 0
+    else:
+        try:
+            return df[(df.TeamID == teamID) & (df.Season == year) & (df.Result == 0)].TeamID.value_counts().iloc[0]
+        except IndexError:
+            return 0
+
+df['WLRatio'] = df.apply(lambda row: get_count(row.TeamID, row.Season, 1)/ (get_count(row.TeamID, row.Season, 0) + get_count(row.TeamID, row.Season, 1)).astype('float') - \
+      get_count(row.OtherTeamID, row.Season, 1)/ (get_count(row.OtherTeamID, row.Season, 0) + get_count(row.OtherTeamID, row.Season, 1)).astype('float'), axis = 1)
+
+
+
 '''SET TRAIN DATA'''
 X_train = df[['PPG_Diff', 'FGP_Diff', 'AST_Diff', 'FGP3_Diff',
-             'FTP_Diff', 'OR_Diff', 'DR_Diff', 'STL_Diff', 'BLK_Diff']]
+             'FTP_Diff', 'OR_Diff', 'DR_Diff', 'STL_Diff', 'BLK_Diff', 'Rank_Diff', 'WLRatio']]
 
 y_train = df['Result']
 X_train, y_train = shuffle(X_train, y_train)
@@ -42,7 +65,6 @@ def get_stat(stat, t1, t2, year):
         return (df[(df.TeamID == t1) & (df.Season == year)][stat].mean() - df[(df.TeamID == t2) & (df.Season == year)][stat].mean())  
     else:
         return df[(df.TeamID == t1)][stat].mean() - df[(df.TeamID == t2)][stat].mean()
-
 
 
 '''TRAIN MODEL - LOGISTIC REGRESSION'''
@@ -67,9 +89,9 @@ clf.fit(X_train, y_train)
 
 
 '''SET TEST DATA'''
-X_test = np.zeros(shape=(n_test_games, 9))
+X_test = np.zeros(shape=(n_test_games, 11))
 
-stat_list = ['PPG', 'FGP', 'AST', 'FGP3', 'FTP', 'OR', 'DR', 'STL', 'BLK']
+stat_list = ['PPG', 'FGP', 'AST', 'FGP3', 'FTP', 'OR', 'DR', 'STL', 'BLK', 'Rank'] 
 
 for ii, row in sample_sub.iterrows():
     year, t1, t2 = get_year_t1_t2(row.ID)
@@ -78,9 +100,11 @@ for ii, row in sample_sub.iterrows():
     for team_stat in stat_list:
         X_test[ii, col_num] = get_stat(team_stat, t1, t2, year)
         col_num += 1
-
-
-
+        
+    X_test[ii, col_num] =  get_count(t1, year, 1)/ (get_count(t1, year, 0) + get_count(t1, year, 1)).astype('float') - \
+      get_count(t2, year, 1)/ (get_count(t2, year, 0) + get_count(t2, year, 1)).astype('float')
+      
+      
 '''MAKE PREDICTIONS'''
 preds = clf.predict_proba(X_test)[:,1]
 
@@ -91,4 +115,4 @@ sample_sub.head()
 
 
 '''WRITE PRED'''
-sample_sub.to_csv('logreg_9FD_update_clipped_sub.csv', index=False)
+sample_sub.to_csv('logreg_11FD_clipped_sub.csv', index=False)
