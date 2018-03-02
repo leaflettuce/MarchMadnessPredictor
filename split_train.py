@@ -4,16 +4,13 @@ Created on Wed Feb 28 11:15:42 2018
 
 @author: andyj
 """
-
-import numpy as np 
 import pandas as pd 
-from sklearn.utils import shuffle
 
 #import data and trim unnecessary columns
 data_dir = 'd://Projects/MarchMadness/data/'
 df = pd.read_csv('MM_Cleaned_2.csv')
 
-df.drop(labels=['SeedDiff', 'WLength', 'LLength'], inplace=True, axis=1) 
+df.drop(labels=['WLength', 'LLength'], inplace=True, axis=1) 
 
 
 
@@ -35,8 +32,8 @@ df_wins['Season'] = df['Season']
 df_wins['TeamID'] = df['WTeamID']
 df_wins['OtherTeamID'] = df['LTeamID']
 df_wins['Loc'] = df['WLoc']
-#df_wins['Coach'] = df['WCoach']
-#df_wins['Seed'] = df['WSeed']
+df_wins['Coach'] = df['WCoach']
+df_wins['Seed'] = df['WSeed']
 
 df_wins['PPG'] = df['WSeason_ppg']
 df_wins['AST'] = df['WSeason_ast']
@@ -50,6 +47,7 @@ df_wins['BLK'] = df['WSeason_blk']
 df_wins['Rank'] = df['WOrdinalRank']
 
 df_wins['PPG_Diff'] = df['Season_ppg_diff']
+df_wins['SEED_Diff'] = df['SeedDiff']
 df_wins['FGP_Diff'] = df['Season_FGP_Diff']
 df_wins['AST_Diff'] = df['Season_ast_diff']
 df_wins['FGP3_Diff'] = df['Season_FGP3_Diff']
@@ -66,8 +64,8 @@ df_losses['Season'] = df['Season']
 df_losses['TeamID'] = df['LTeamID']
 df_losses['OtherTeamID'] = df['WTeamID']
 df_losses['Loc'] = df['LLoc']
-#df_losses['Coach'] = df['LCoach']
-#df_losses['Seed'] = df['LSeed']
+df_losses['Coach'] = df['LCoach']
+df_losses['Seed'] = df['LSeed']
 
 df_losses['PPG'] = df['LSeason_ppg']
 df_losses['AST'] = df['LSeason_ast']
@@ -81,6 +79,7 @@ df_losses['BLK'] = df['LSeason_blk']
 df_wins['Rank'] = df['LOrdinalRank']
 
 df_losses['PPG_Diff'] = -df['Season_ppg_diff']
+df_losses['SEED_Diff'] = -df['SeedDiff']
 df_losses['FGP_Diff'] = -df['Season_FGP_Diff']
 df_losses['AST_Diff'] = -df['Season_ast_diff']
 df_losses['FGP3_Diff'] = -df['Season_FGP3_Diff']

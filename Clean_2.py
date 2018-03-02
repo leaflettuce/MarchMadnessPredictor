@@ -4,8 +4,6 @@ Created on Tue Feb 27 17:58:11 2018
 
 @author: andyj
 """
-
-import numpy as np 
 import pandas as pd 
 
 
