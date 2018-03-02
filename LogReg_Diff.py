@@ -50,6 +50,8 @@ df['WLRatio'] = df.apply(lambda row: get_count(row.TeamID, row.Season, 1)/ (get_
 X_train = df[['PPG_Diff', 'FGP_Diff', 'AST_Diff', 'FGP3_Diff',
              'FTP_Diff', 'DR_Diff', 'STL_Diff', 'BLK_Diff', 'Rank_Diff', 'WLRatio']]
 
+#X_train = df[['PPG_Diff', 'FGP_Diff', 'FGP3_Diff', 'DR_Diff']]
+
 y_train = df['Result']
 X_train, y_train = shuffle(X_train, y_train)
 
@@ -92,8 +94,8 @@ clf.feature_importances_
 '''SET TEST DATA'''
 X_test = np.zeros(shape=(n_test_games, 10))
 
-
 stat_list = ['PPG', 'FGP', 'AST', 'FGP3', 'FTP', 'DR', 'STL', 'BLK', 'Rank'] 
+#stat_list = ['PPG', 'FGP', 'FGP3', 'DR'] 
 
 for ii, row in sample_sub.iterrows():
     year, t1, t2 = get_year_t1_t2(row.ID)
@@ -108,7 +110,6 @@ for ii, row in sample_sub.iterrows():
 
       
 '''MAKE PREDICTIONS'''
-
 imp = Imputer(missing_values='NaN', strategy='median', axis=1) 
 imp.fit(X_test)
 X_test = imp.fit_transform(X_test)
@@ -122,4 +123,4 @@ sample_sub.head()
 
 
 '''WRITE PRED'''
-sample_sub.to_csv('RandForest_10FD_clipped_sub.csv', index=False)
+sample_sub.to_csv('RandForest_4FD_clipped_sub.csv', index=False)
