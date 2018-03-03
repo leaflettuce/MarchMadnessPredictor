@@ -102,9 +102,9 @@ X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=
 ######### FITTING MODELS ##############
 #######################################
 '''GAUSSIAN NAIVE BAYES'''
-clf = GaussianNB()
-clf.fit(X_train, y_train)
-clf.score(X_test, y_test)
+#clf = GaussianNB()
+#clf.fit(X_train, y_train)
+#clf.score(X_test, y_test)
 
 
 '''LOGISTIC REGRESSION'''
@@ -129,12 +129,13 @@ clf.score(X_test, y_test)
 
 
 '''ADABOOST'''
-#ada = AdaBoostClassifier()
-#parameters = {'n_estimators':[10,50,100], 'random_state': [None, 0, 42, 138]}
-#clf = grid_search.GridSearchCV(ada, parameters)
-#clf = AdaBoostClassifier(n_estimators=50, random_state=138)
-#clf.fit(X_train, y_train)
+ada = AdaBoostClassifier()
+parameters = {'n_estimators':[10,50,100], 'random_state': [None, 0, 42, 138]}
+clf = grid_search.GridSearchCV(ada, parameters)
+clf = AdaBoostClassifier(n_estimators=50, random_state=138)
+clf.fit(X_train, y_train)
 
+clf.score(X_test, y_test)
 
 
 
@@ -142,11 +143,11 @@ clf.score(X_test, y_test)
 ###### FORMAT SUBMISSION FILE #########
 #######################################
 '''SET TEST DATAFRAME'''
-X_sub = np.zeros(shape=(n_test_games, 10))
+X_sub = np.zeros(shape=(n_test_games, 11))
 
 
 '''SETTING FEATURES'''
-stat_list = ['PPG', 'FGP', 'AST', 'FGP3', 'FTP', 'DR', 'STL', 'BLK', 'Rank'] 
+stat_list = ['PPG', 'FGP', 'AST', 'FGP3', 'Seed', 'FTP', 'DR', 'STL', 'BLK', 'Rank'] 
 
 for ii, row in sample_sub.iterrows():
     year, t1, t2 = get_year_t1_t2(row.ID)
@@ -157,7 +158,7 @@ for ii, row in sample_sub.iterrows():
         col_num += 1
         
     X_sub[ii, col_num] =  get_count(t1, year, 1)/ (get_count(t1, year, 0) + get_count(t1, year, 1)).astype('float') - \
-      get_count(t2, year, 1)/ (get_count(t2, year, 0) + get_count(t2, year, 1)).astype('float')
+     get_count(t2, year, 1)/ (get_count(t2, year, 0) + get_count(t2, year, 1)).astype('float')
 
       
 '''EDIT NaN's and infinite values'''
@@ -173,4 +174,4 @@ clipped_preds = np.clip(preds, 0.05, 0.95)
 sample_sub.Pred = clipped_preds
 
 '''WRITE TO CSV'''
-sample_sub.to_csv('GaussianNB_10FD_clipped_sub.csv', index=False)
+sample_sub.to_csv('AdaBoost_3FD_clipped_sub.csv', index=False)
