@@ -12,7 +12,9 @@ import math
 from sklearn.utils import shuffle
 from sklearn.preprocessing import Imputer
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_validate
 from sklearn.feature_selection import SelectPercentile
+from sklearn.metrics import confusion_matrix
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LogisticRegressionCV
@@ -21,6 +23,13 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn import grid_search
 from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn import svm
+
+import plotly.plotly as py
+import plotly.graph_objs as go
+from plotly import tools
+
 
 os.chdir('D:/Projects/MarchMadness')
 
@@ -91,7 +100,7 @@ y_train = df['Result']
 X_train, y_train = shuffle(X_train, y_train)
 
 '''SELECTION SCORES'''
-#X_new = SelectPercentile(percentile = 30).fit_transform(X_train, y_train)
+#X_new = SelectPercentile(percentile = 20).fit_transform(X_train, y_train)
 
 '''TRAIN-TEST SPLIT - (for testing locally)'''
 X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.33, random_state=42)
@@ -135,8 +144,64 @@ clf = grid_search.GridSearchCV(ada, parameters)
 clf = AdaBoostClassifier(n_estimators=50, random_state=138)
 clf.fit(X_train, y_train)
 
+cv_results = cross_validate(clf, X_train, y_train)
+cv_results['test_score']  
+
 clf.score(X_test, y_test)
 
+y_pred = clf.predict(X_test)
+# TN,FP, FN, TP
+
+confusion_matrix(y_test, y_pred)
+
+'''K Nearest Neighbor'''
+#clf = KNeighborsClassifier(n_neighbors=5)
+#clf.fit(X_train, y_train) 
+
+#clf.score(X_test, y_test)
+
+
+'''Support Vector Machine''' 
+#clf = svm.SVC(kernel='linear', gamma=0.7, C=1.0, probability = True)
+#clf.fit(X_train, y_train)
+
+#clf.score(X_test, y_test)
+
+
+
+######################
+#### PLOT IT OUT #####
+######################
+'''
+def data_to_plotly(x):
+    plotly_data = []
+    for index, row in x.iterrows():
+        plotly_data.append(row['PPG_Diff'])
+        
+    return plotly_data
+
+training_samples = go.Scatter(x=data_to_plotly(X_test), 
+                              y=y_test, 
+                              name="training samples",
+                              mode='markers',
+                              marker=dict(color='black', size=6)
+                             )
+
+AdaboostedTree = go.Scatter(x=data_to_plotly(X_test),
+                            y=y1, 
+                            name="Adaboost Prediction",
+                            mode='lines',
+                            line=dict(color='red'), 
+                           )
+data = [training_samples, AdaboostedTree]
+
+layout = go.Layout(title='Boosted Decision Tree Regression',
+                   xaxis=dict(title='data'),
+                   yaxis=dict(title='target')
+                  )
+fig = go.Figure(data=data, layout=layout)
+py.plot(fig)
+'''
 
 
 #######################################
@@ -174,4 +239,4 @@ clipped_preds = np.clip(preds, 0.05, 0.95)
 sample_sub.Pred = clipped_preds
 
 '''WRITE TO CSV'''
-sample_sub.to_csv('AdaBoost_3FD_clipped_sub.csv', index=False)
+sample_sub.to_csv('Adaboost_11FD_clipped_sub.csv', index=False)
