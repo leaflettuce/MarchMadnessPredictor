@@ -240,7 +240,7 @@ X_sub_test, y_sub_test = shuffle(X_sub_test, X_sub_test_results)
 #X_sub_new = SelectPercentile(percentile = 30).fit_transform(X_sub_test, y_sub_test)
 X_sub_train, X_sub_test, y_sub_train, y_sub_test = train_test_split(X_sub_test, y_sub_test, test_size=0.33, random_state=42)
 
-
+'''......'''
 ## TESTINFG
 '''ADABOOST'''
 ada = AdaBoostClassifier()
