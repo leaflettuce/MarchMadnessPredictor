@@ -97,7 +97,7 @@ def set_and_format_train(data_set, input_df, stat_list):
         data_set[ii, col_num] = get_win_avg(t1, t2)
 
 
-'''Get avg wins of tourny games for team'''   #!!!!! CHANGE TO OVERALL MEAN !!!!!#
+'''Get avg wins of tourny games for team'''
 tourny_data_train = tourny_data[(tourny_data.Season < 2017)]
 tourny_win_avg = tourny_data_train.groupby('WTeamID').count().Season / tourny_data.groupby('WTeamID').Season.nunique()
  
@@ -194,12 +194,12 @@ X_train, X_test, y_train, y_test = train_test_split(X_data, y_data, test_size=0.
 
 
 '''ADABOOST'''
-ada = AdaBoostClassifier()
-parameters = {'n_estimators':[10,50,100], 'random_state': [None, 0, 42, 138], \
-              'learning_rate': [0.1, 0.5, 0.8, 1.0]}
-clf = grid_search.GridSearchCV(ada, parameters)
+#ada = AdaBoostClassifier()
+#parameters = {'n_estimators':[10,50,100], 'random_state': [None, 0, 42, 138], \
+#              'learning_rate': [0.1, 0.5, 0.8, 1.0]}
+#clf = grid_search.GridSearchCV(ada, parameters)
 
-clf.fit(X_train, y_train)
+#clf.fit(X_train, y_train)
 
 
 '''K Nearest Neighbor'''
@@ -222,13 +222,13 @@ clf.fit(X_train, y_train)
 
 
 '''Multi-layer Perceptron Classifier (NN)'''
-#mlp = MLPClassifier()
-#parameters = {'hidden_layer_sizes':[(100,), (50,),(200,)], 'activation': ['identity','relu', 'logistic', 'tanh'], \
-#              'solver': ['adam', 'lbfgs'], 'learning_rate': ['constant', 'invscaling', 'adaptive'], 'max_iter': [100, 200, 300], \
- #             'early_stopping': [False]}
-#clf = grid_search.GridSearchCV(mlp, parameters)
+mlp = MLPClassifier()
+parameters = {'hidden_layer_sizes':[(100,), (50,),(200,)], 'activation': ['identity','relu', 'logistic', 'tanh'], \
+              'solver': ['adam', 'lbfgs'], 'learning_rate': ['constant', 'invscaling', 'adaptive'], 'max_iter': [100, 200, 300], \
+              'early_stopping': [True]}
+clf = grid_search.GridSearchCV(mlp, parameters)
  
-#clf.fit(X_train, y_train)
+clf.fit(X_train, y_train)
 
 
 ################################
