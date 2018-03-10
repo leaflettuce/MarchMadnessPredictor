@@ -47,6 +47,8 @@ n_test_games = len(sample_sub)
 tourney_tester = pd.read_csv('season_test.csv')
 tourny_data = pd.read_csv(data_dir + 'NCAATourneyCompactResults.csv')
 tourny_data = tourny_data[(tourny_data.Season >= 2003) & (tourny_data.Season <= 2017)]
+
+
 ##############################################
 ########## HELPER FUNCTIONS ##################
 ##############################################
@@ -88,14 +90,19 @@ def set_and_format_train(data_set, input_df, stat_list):
         for team_stat in stat_list:
             data_set[ii, col_num] = get_stat(team_stat, t1, t2, year)
             col_num += 1
- 
+            #WL Ratio
         data_set[ii, col_num] =  get_count(t1, year, 1)/ (get_count(t1, year, 0) + get_count(t1, year, 1)).astype('float') - \
         get_count(t2, year, 1)/ (get_count(t2, year, 0) + get_count(t2, year, 1)).astype('float')
         col_num += 1
-        
+            #Win average in Tourny
         data_set[ii, col_num] = get_win_avg(t1, t2)
-
-
+        col_num += 1
+            #ID's
+        data_set[ii, col_num] = str(t1)
+        col_num += 1
+            #Other ID
+        data_set[ii, col_num] = str(t2)
+            
 '''Get avg wins of tourny games for team'''
 tourny_data_train = tourny_data[(tourny_data.Season < 2017)]
 tourny_win_avg = tourny_data_train.groupby('WTeamID').count().Season / tourny_data.groupby('WTeamID').Season.nunique()
@@ -120,19 +127,43 @@ def get_win_avg(t1, t2):
 loc_dummies = pd.get_dummies(df.Loc)
 df = pd.concat([df, loc_dummies], axis = 1)
 
+coach_dummies = pd.get_dummies(df.Coach)
+df = pd.concat([df, coach_dummies], axis = 1)
+
+df.TeamID = df.TeamID.astype('category')
+df.OtherTeamID = df.OtherTeamID.astype('category')
+
+W_dummies = pd.get_dummies(df.TeamID)
+df = pd.concat([df, W_dummies], axis = 1)
+L_dummies = pd.get_dummies(df.OtherTeamID)
+df = pd.concat([df, L_dummies], axis = 1)
 
 
 #######################################
 ###### CREATE TEST DATA ## ############
 #######################################
 '''SET TEST DATAFRAME'''
-test_data = np.zeros(shape=(len(tourney_tester), 12)) #11
+test_data = np.zeros(shape=(len(tourney_tester), 14)) #11
 
 '''SETTING FEATURES'''
 stat_list = ['PPG', 'FGP', 'AST', 'FGP3', 'Seed', 'FTP', 'DR', 'STL', 'BLK', 'Rank'] 
 set_and_format_train(test_data, tourney_tester, stat_list)
 
-'''REULTS AND SHUFFLE DATA'''
+'''SET COL NAMES'''
+test_data_names = ['PPG', 'FGP', 'AST', 'FGP3', 'Seed', 'FTP', 'DR', 'STL', 'BLK', 'Rank', \
+                     'WLRatio', 'Win_Avg', 'TeamID', 'OtherTeamID']
+test_data = pd.DataFrame(test_data, columns = test_data_names)
+
+'''SET TEST DUMMIES'''
+test_data.TeamID = test_data.TeamID.astype('category')
+test_data.OtherTeamID = test_data.OtherTeamID.astype('category')
+
+W_dummies = pd.get_dummies(test_data.TeamID)
+test_data = pd.concat([test_data, W_dummies], axis = 1)
+L_dummies = pd.get_dummies(test_data.OtherTeamID)
+test_data = pd.concat([test_data, L_dummies], axis = 1)
+
+'''RESULTS AND SHUFFLE DATA'''
 test_data_results = tourney_tester['Result']      
 X_data, y_data = shuffle(test_data, test_data_results)
 
@@ -144,11 +175,21 @@ X_data = imp.fit_transform(X_data)
 
 ######################################
 ######### RESCALE DATA ###############
-######################################
+######################################   
 '''Standardize'''
-scaler = StandardScaler()
-scaler.fit(X_data)
-X_data = scaler.transform(X_data)
+scaler = StandardScaler()             '''FIX THIS SECTION'''
+
+test_names = ['FGP', 'AST', 'FGP3', 'Seed', 'FTP', 'DR', 'STL', 'BLK', 'Rank', \
+                     'WLRatio', 'Win_Avg', 'TeamID', 'OtherTeamID']
+for i in range(14, 492):
+    test_names.append(i)
+    
+X_data = pd.DataFrame(X_data, columns = test_names)
+
+item2 = 'PPG'
+for item in test_names:
+    X_data[item2, item] = scaler.fit_transform(X_data[item2, item])
+    item2 = item
 
 
 
@@ -163,7 +204,7 @@ X_new = selector.fit_transform(X_data, y_data)
 #selector.scores_
 
 '''SPLIT TRAIN AND TEST'''
-X_train, X_test, y_train, y_test = train_test_split(X_new, y_data, test_size=0.20, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_data, y_data, test_size=0.20, random_state=42)
 
 
 
@@ -254,11 +295,24 @@ confusion_matrix(y_test, y_pred)
 ###### FORMAT SUBMISSION FILE #########
 #######################################
 '''SET TEST DATAFRAME'''
-X_sub = np.zeros(shape=(n_test_games,  12)) #11
+X_sub = np.zeros(shape=(n_test_games,  14)) #11
 
 '''SETTING FEATURES'''
-stat_list = ['PPG', 'FGP', 'AST', 'FGP3', 'Seed', 'FTP', 'DR', 'STL', 'BLK', 'Rank'] 
+stat_list = ['PPG', 'FGP', 'AST', 'FGP3', 'Seed', 'FTP', 'DR', 'STL', 'BLK', 'Rank']
 set_and_format_train(X_sub, sample_sub, stat_list)
+
+'''FORMAT FURTHER DUMMIES'''
+X_sub = pd.DataFrame(test_data, columns = test_data_names)
+
+'''SET TEST DUMMIES'''
+X_sub.TeamID = X_sub.TeamID.astype('category')
+X_sub.OtherTeamID = X_sub.OtherTeamID.astype('category')
+
+W_dummies = pd.get_dummies(X_sub.TeamID)
+X_sub = pd.concat([X_sub, W_dummies], axis = 1)
+L_dummies = pd.get_dummies(X_sub.OtherTeamID)
+X_sub = pd.concat([X_sub, L_dummies], axis = 1)
+
 
 '''Fill NaN's'''
 imp = Imputer(missing_values='NaN', strategy='median', axis=1) 
