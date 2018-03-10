@@ -46,8 +46,7 @@ sample_sub = pd.read_csv(data_dir + 'SampleSubmissionStage1.csv')
 n_test_games = len(sample_sub)
 tourney_tester = pd.read_csv('season_test.csv')
 tourny_data = pd.read_csv(data_dir + 'NCAATourneyCompactResults.csv')
-tourny_data = tourny_data[(df.Season >= 2003) & (df.Season <= 2017)]
-
+tourny_data = tourny_data[(tourny_data.Season >= 2003) & (tourny_data.Season <= 2017)]
 ##############################################
 ########## HELPER FUNCTIONS ##################
 ##############################################
@@ -161,10 +160,10 @@ X_data = scaler.transform(X_data)
 
 selector = SelectKBest(k = 6)
 X_new = selector.fit_transform(X_data, y_data)
-selector.scores_
+#selector.scores_
 
 '''SPLIT TRAIN AND TEST'''
-X_train, X_test, y_train, y_test = train_test_split(X_data, y_data, test_size=0.20, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_new, y_data, test_size=0.20, random_state=42)
 
 
 
@@ -194,12 +193,12 @@ X_train, X_test, y_train, y_test = train_test_split(X_data, y_data, test_size=0.
 
 
 '''ADABOOST'''
-#ada = AdaBoostClassifier()
-#parameters = {'n_estimators':[10,50,100], 'random_state': [None, 0, 42, 138], \
-#              'learning_rate': [0.1, 0.5, 0.8, 1.0]}
-#clf = grid_search.GridSearchCV(ada, parameters)
+ada = AdaBoostClassifier()
+parameters = {'n_estimators':[10,50,100], 'random_state': [None, 0, 42, 138], \
+              'learning_rate': [0.1, 0.5, 0.8, 1.0]}
+clf = grid_search.GridSearchCV(ada, parameters)
 
-#clf.fit(X_train, y_train)
+clf.fit(X_train, y_train)
 
 
 '''K Nearest Neighbor'''
@@ -222,13 +221,13 @@ X_train, X_test, y_train, y_test = train_test_split(X_data, y_data, test_size=0.
 
 
 '''Multi-layer Perceptron Classifier (NN)'''
-mlp = MLPClassifier()
-parameters = {'hidden_layer_sizes':[(100,), (50,),(200,)], 'activation': ['identity','relu', 'logistic', 'tanh'], \
-              'solver': ['adam', 'lbfgs'], 'learning_rate': ['constant', 'invscaling', 'adaptive'], 'max_iter': [100, 200, 300], \
-              'early_stopping': [True]}
-clf = grid_search.GridSearchCV(mlp, parameters)
+#mlp = MLPClassifier()
+#parameters = {'hidden_layer_sizes':[(100,), (50,),(200,)], 'activation': ['identity','relu', 'logistic', 'tanh'], \
+#              'solver': ['adam', 'lbfgs'], 'learning_rate': ['constant', 'invscaling', 'adaptive'], 'max_iter': [100, 200, 300], \
+#              'early_stopping': [True]}
+#clf = grid_search.GridSearchCV(mlp, parameters)
  
-clf.fit(X_train, y_train)
+#clf.fit(X_train, y_train)
 
 
 ################################
@@ -255,8 +254,7 @@ confusion_matrix(y_test, y_pred)
 ###### FORMAT SUBMISSION FILE #########
 #######################################
 '''SET TEST DATAFRAME'''
-X_sub = np.zeros(shape=(n_test_games, 12)) #11
-
+X_sub = np.zeros(shape=(n_test_games,  12)) #11
 
 '''SETTING FEATURES'''
 stat_list = ['PPG', 'FGP', 'AST', 'FGP3', 'Seed', 'FTP', 'DR', 'STL', 'BLK', 'Rank'] 
@@ -316,8 +314,11 @@ y_test_2017 = season_test_final['Result']
 X_test_2017, y_test_2017 = shuffle(X_test_2017, y_test_2017)
 
 '''format'''
-X_sub_2017 = np.zeros(shape=(len(X_test_2017), 12))
+X_sub_2017 = np.zeros(shape=(len(X_test_2017),  12)) #11
+
+'''SETTING FEATURES'''
 stat_list = ['PPG', 'FGP', 'AST', 'FGP3', 'Seed', 'FTP', 'DR', 'STL', 'BLK', 'Rank'] 
+#stat_list = ['FGP']
 season_test_final = season_test_final.reset_index()
 set_and_format_train(X_sub_2017, season_test_final, stat_list)
 

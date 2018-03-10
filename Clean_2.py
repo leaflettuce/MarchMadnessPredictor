@@ -11,6 +11,7 @@ import pandas as pd
 data_dir = 'd://Projects/MarchMadness/data/'
 df_seeds = pd.read_csv(data_dir + 'NCAATourneySeeds.csv')
 df_tour = pd.read_csv(data_dir + 'RegularSeasonDetailedResults.csv')
+d#f_tour = pd.read_csv(data_dir + 'NCAATourneyDetailedResults.csv')
 
 df_seeds.head()
 
