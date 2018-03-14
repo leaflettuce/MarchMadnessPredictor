@@ -5,18 +5,20 @@ Created on Wed Feb 28 11:15:42 2018
 @author: andyj
 """
 import pandas as pd 
+import os
+os.chdir('D:/Projects/MarchMadness')
 
 #import data and trim unnecessary columns
 data_dir = 'd://Projects/MarchMadness/data/'
-df = pd.read_csv('MM_Cleaned_2.csv')
+df = pd.read_csv('MM_Cleaned_2018.csv')
 
 df.drop(labels=['WLength', 'LLength'], inplace=True, axis=1) 
 
 
 
 '''Import RPI and Connect'''
-df_massey = pd.read_csv(data_dir + 'MasseyOrdinals.csv')
-df_rpi = df_massey[(df_massey.SystemName == 'RPI') & (df_massey.RankingDayNum == 133)]
+df_massey = pd.read_csv(data_dir + 'MasseyOrdinals_2018.csv')
+df_rpi = df_massey[(df_massey.SystemName == 'RPI') & (df_massey.RankingDayNum == 128)]
 df_rpi.drop(labels=['SystemName', 'RankingDayNum'], inplace=True, axis=1) 
 
 df_winrpi = df_rpi.rename(columns={'TeamID' : 'WTeamID', 'OrdinalRank' : 'WOrdinalRank'})
@@ -99,4 +101,4 @@ df_predictions.head()
 
 
 '''PRINT OUT CLEAN CSV'''
-df_predictions.to_csv('train_data_diff.csv', index=False)
+df_predictions.to_csv('train_data_diff_2018.csv', index=False)

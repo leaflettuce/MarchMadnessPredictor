@@ -6,12 +6,14 @@ Created on Tue Feb 27 17:58:11 2018
 """
 import pandas as pd 
 
+import os
+os.chdir('D:/Projects/MarchMadness')
 
 #import seed and results data
-data_dir = 'd://Projects/MarchMadness/data/'
+data_dir = 'd://Projects/MarchMadness/data2/'
 df_seeds = pd.read_csv(data_dir + 'NCAATourneySeeds.csv')
 df_tour = pd.read_csv(data_dir + 'RegularSeasonDetailedResults.csv')
-d#f_tour = pd.read_csv(data_dir + 'NCAATourneyDetailedResults.csv')
+#df_tour = pd.read_csv(data_dir + 'NCAATourneyDetailedResults.csv')
 
 df_seeds.head()
 
@@ -416,4 +418,4 @@ df_working.drop(labels=['WFGM', 'WFGA', 'WFGM3', 'WFGA3', 'WFTM', 'WFTA',
     
 
 '''RETURN NEW CSV WITH CREATED COLUMNS'''
-df_working.to_csv('MM_Cleaned_2.csv', index=False)
+df_working.to_csv('MM_Cleaned_2018.csv', index=False)

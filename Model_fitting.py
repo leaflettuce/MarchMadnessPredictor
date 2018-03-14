@@ -40,13 +40,13 @@ os.chdir('D:/Projects/MarchMadness')
 ####################
 ### IMPORT FILES ###
 ####################
-df = pd.read_csv('train_data_diff.csv')
-data_dir = 'd://Projects/MarchMadness/data/'
-sample_sub = pd.read_csv(data_dir + 'SampleSubmissionStage1.csv')
+df = pd.read_csv('train_data_diff_2018.csv')
+data_dir = 'd://Projects/MarchMadness/data2/'
+sample_sub = pd.read_csv(data_dir + 'SampleSubmissionStage2.csv')
 n_test_games = len(sample_sub)
 tourney_tester = pd.read_csv('season_test.csv')
 tourny_data = pd.read_csv(data_dir + 'NCAATourneyCompactResults.csv')
-tourny_data = tourny_data[(tourny_data.Season >= 2003) & (tourny_data.Season <= 2017)]
+tourny_data = tourny_data[(tourny_data.Season >= 2003)]
 ##############################################
 ########## HELPER FUNCTIONS ##################
 ##############################################
@@ -88,9 +88,12 @@ def set_and_format_train(data_set, input_df, stat_list):
         for team_stat in stat_list:
             data_set[ii, col_num] = get_stat(team_stat, t1, t2, year)
             col_num += 1
- 
-        data_set[ii, col_num] =  get_count(t1, year, 1)/ (get_count(t1, year, 0) + get_count(t1, year, 1)).astype('float') - \
-        get_count(t2, year, 1)/ (get_count(t2, year, 0) + get_count(t2, year, 1)).astype('float')
+        
+        try:
+            data_set[ii, col_num] =  get_count(t1, year, 1)/ float((get_count(t1, year, 0) + get_count(t1, year, 1))) - \
+            get_count(t2, year, 1)/ float((get_count(t2, year, 0) + get_count(t2, year, 1)))
+        except ZeroDivisionError:
+            data_set[ii, col_num] = 0
         col_num += 1
         
         data_set[ii, col_num] = get_win_avg(t1, t2)
@@ -163,7 +166,7 @@ X_new = selector.fit_transform(X_data, y_data)
 #selector.scores_
 
 '''SPLIT TRAIN AND TEST'''
-X_train, X_test, y_train, y_test = train_test_split(X_new, y_data, test_size=0.20, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_data, y_data, test_size=0.20, random_state=42)
 
 
 
@@ -273,7 +276,7 @@ clipped_preds = np.clip(preds, 0.05, 0.95)
 sample_sub.Pred = clipped_preds
 
 '''WRITE TO CSV'''
-sample_sub.to_csv('MLP-NN_12Feature_clipped_sub.csv', index=False)
+sample_sub.to_csv('ADA_12Feature_clipped_final.csv', index=False)
 
 
 
