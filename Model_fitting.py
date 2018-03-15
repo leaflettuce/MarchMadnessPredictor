@@ -42,7 +42,7 @@ os.chdir('D:/Projects/MarchMadness')
 ####################
 df = pd.read_csv('train_data_diff_2018.csv')
 data_dir = 'd://Projects/MarchMadness/data2/'
-sample_sub = pd.read_csv(data_dir + 'SampleSubmissionStage2.csv')
+sample_sub = pd.read_csv('SampleSubmissionPersonal5.csv')
 n_test_games = len(sample_sub)
 tourney_tester = pd.read_csv('season_test.csv')
 tourny_data = pd.read_csv(data_dir + 'NCAATourneyCompactResults.csv')
